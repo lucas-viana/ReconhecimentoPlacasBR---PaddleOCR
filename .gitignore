@@ -1,0 +1,65 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+venv/
+.env/
+ENV/
+.venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Application folders
+placas_desconhecidas/
+placas_conhecidas/
+
+# Logs
+*.log
+
+# Database (if using SQLite for dev)
+*.sqlite3
+*.db
+
+# Ignore video files
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Ignore images
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.tiff
+
+# Ignore secrets
+*.env
+secrets.json
+
+# Ignore compiled Cython files
+*.so
+*.dll
+*.dylib
+
+# Ignore test output
+htmlcov/
+.coverage
+.cache/
+
+# Ignore wheel files
+dist/
+build/
+*.egg-info/
