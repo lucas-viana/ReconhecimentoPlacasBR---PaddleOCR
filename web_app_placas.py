@@ -873,7 +873,7 @@ def desenhar_interface(frame, deteccoes, frame_count):
 
 @app.route('/')
 def index():
-    """Página principal - Dashboard"""
+    """Página principal - Dashboard Moderno"""
     veiculos = conn_db.listar_veiculos(100)
     alertas = conn_db.listar_alertas(apenas_nao_resolvidos=True, limite=10)
     acessos = conn_db.listar_acessos_recentes(limite=20)
@@ -887,339 +887,201 @@ def index():
     
     html_page = """
     <!doctype html>
-    <html lang="pt-br">
+    <html lang="pt-br" data-bs-theme="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Sistema de Reconhecimento de Placas - IFSULDEMINAS</title>
+        <title>Sentinel | IFSULDEMINAS</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-                background-color: #f4f7f6; 
-                color: #333; 
-            }
-            .navbar {
-                background-color: #1a1a1a;
-                padding: 15px 20px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            .navbar h1 {
-                color: #fff;
-                font-size: 1.5em;
-                display: inline-block;
-            }
-            .navbar a {
-                color: #fff;
-                text-decoration: none;
-                padding: 10px 15px;
-                margin-left: 20px;
-                border-radius: 5px;
-                display: inline-block;
-            }
-            .navbar a:hover { background-color: #333; }
-            .navbar .btn-primary { background-color: #007bff; }
-            .navbar .btn-primary:hover { background-color: #0056b3; }
-            
-            .container { 
-                max-width: 1400px; 
-                margin: 20px auto; 
-                padding: 20px; 
-            }
-            
-            .alert-banner {
-                background-color: #dc3545;
-                color: white;
-                padding: 15px;
-                border-radius: 8px;
-                margin-bottom: 20px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-            }
-            .alert-banner.warning { background-color: #ffc107; color: #000; }
-            
-            .stats-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 15px;
-                margin: 20px 0;
-            }
-            .stat-card {
-                background: white;
-                padding: 25px;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                text-align: center;
-            }
-            .stat-number {
-                font-size: 2.5em;
-                font-weight: bold;
-                color: #007bff;
-            }
-            .stat-number.danger { color: #dc3545; }
-            .stat-number.warning { color: #ffc107; }
-            .stat-number.success { color: #28a745; }
-            .stat-label {
-                color: #666;
-                margin-top: 8px;
-                font-size: 0.95em;
-            }
-            
-            .section {
-                background: white;
-                padding: 25px;
-                border-radius: 8px;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-                margin-bottom: 20px;
-            }
-            h2 { 
-                color: #1a1a1a; 
-                margin-bottom: 20px;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #007bff;
-            }
-            
-            .images-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-                gap: 15px;
-                margin: 20px 0;
-            }
-            .image-card {
-                border: 2px solid #eee;
-                border-radius: 8px;
-                overflow: hidden;
-                transition: all 0.3s;
-                cursor: pointer;
-            }
-            .image-card:hover {
-                transform: translateY(-5px);
-                border-color: #007bff;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            }
-            .image-card img {
-                width: 100%;
-                height: 160px;
-                object-fit: cover;
-                background-color: #f0f0f0;
-            }
-            .image-info {
-                padding: 12px;
-                background: #f8f9fa;
-            }
-            .image-placa {
-                font-weight: bold;
-                font-size: 1.1em;
-                color: #007bff;
-                font-family: monospace;
-            }
-            .image-timestamp {
-                font-size: 0.85em;
-                color: #666;
-                margin-top: 5px;
-            }
-            .btn-cadastrar {
-                display: block;
-                width: 100%;
-                padding: 8px;
-                background-color: #28a745;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                margin-top: 10px;
-                font-weight: bold;
-            }
-            .btn-cadastrar:hover { background-color: #218838; }
-            
-            table { 
-                width: 100%; 
-                border-collapse: collapse; 
-                margin: 20px 0;
-            }
-            th, td { 
-                padding: 12px; 
-                text-align: left; 
-                border-bottom: 1px solid #eee; 
-            }
-            th { 
-                background-color: #f8f9fa; 
-                font-weight: 600;
-            }
-            tr:hover { background-color: #f8f9fa; }
-            
-            .badge {
-                display: inline-block;
-                padding: 5px 10px;
-                border-radius: 4px;
-                font-size: 0.85em;
-                font-weight: bold;
-            }
-            .badge-placa {
-                background-color: #007bff;
-                color: white;
-                font-family: monospace;
-                font-size: 1em;
-            }
-            .badge-oficial { background-color: #17a2b8; color: white; }
-            .badge-particular { background-color: #6c757d; color: white; }
-            .badge-marcado { background-color: #ffc107; color: #000; }
-            .badge-autorizado { background-color: #28a745; color: white; }
-            .badge-nao-autorizado { background-color: #dc3545; color: white; }
-            
-            .empty-state {
-                text-align: center;
-                padding: 40px;
-                color: #999;
-            }
+            body { background-color: #0f172a; color: #e2e8f0; font-family: 'Segoe UI', sans-serif; }
+            .navbar { background: linear-gradient(90deg, #0f2027, #203a43, #2c5364); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+            .card { background-color: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: transform 0.2s; }
+            .card:hover { transform: translateY(-5px); }
+            .stat-icon { font-size: 2.5rem; opacity: 0.8; }
+            .img-placa { height: 160px; object-fit: cover; width: 100%; border-bottom: 3px solid #3b82f6; }
+            .table-custom { --bs-table-bg: #1e293b; --bs-table-color: #cbd5e1; --bs-table-border-color: #334155; }
+            .badge-placa { font-family: 'Consolas', monospace; font-size: 1em; letter-spacing: 1px; background: #000; border: 2px solid white; border-radius: 4px; }
+            .btn-glow { box-shadow: 0 0 10px rgba(59, 130, 246, 0.5); }
         </style>
     </head>
     <body>
-        <div class="navbar">
-            <h1>🚗 Sistema de Controle de Acesso - IFSULDEMINAS</h1>
-            <a href="{{ url_for('live_view') }}" class="btn-primary" target="_blank">📹 Visualização Ao Vivo</a>
-            <a href="{{ url_for('cadastro_veiculo') }}">➕ Cadastrar Veículo</a>
-            <a href="{{ url_for('listar_usuarios') }}">👥 Usuários</a>
-        </div>
+        <nav class="navbar navbar-expand-lg navbar-dark mb-4 p-3">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold" href="#"><i class="fas fa-eye me-2"></i>SENTINEL SYSTEM</a>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('live_view') }}" class="btn btn-danger btn-glow" target="_blank"><i class="fas fa-video me-2"></i>AO VIVO</a>
+                    <a href="{{ url_for('cadastro_veiculo') }}" class="btn btn-primary"><i class="fas fa-plus me-2"></i>Novo Veículo</a>
+                    <a href="{{ url_for('listar_usuarios') }}" class="btn btn-outline-info"><i class="fas fa-users me-2"></i>Usuários</a>
+                </div>
+            </div>
+        </nav>
         
-        <div class="container">
+        <div class="container-fluid px-4">
             {% if alertas|length > 0 %}
                 {% for alerta in alertas[:3] %}
-                <div class="alert-banner {% if alerta.tipo_alerta == 'VEICULO_MARCADO' %}warning{% endif %}">
-                    <div>
-                        <strong>⚠️ Alerta:</strong> {{ alerta.mensagem }}
-                        (Placa: {{ alerta.placa }} - {{ alerta.data_alerta.strftime('%H:%M:%S') }})
-                    </div>
+                <div class="alert alert-dismissible fade show {% if alerta.tipo_alerta == 'VEICULO_MARCADO' %}alert-warning{% else %}alert-danger{% endif %} shadow-sm" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <strong>ALERTA:</strong> {{ alerta.mensagem }} ({{ alerta.placa }})
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
                 {% endfor %}
             {% endif %}
-            
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number success">{{ veiculos|length }}</div>
-                    <div class="stat-label">Veículos Cadastrados</div>
+
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card h-100 p-3 border-start border-4 border-success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1">Veículos Cadastrados</h6>
+                                <h2 class="fw-bold mb-0 text-success">{{ veiculos|length }}</h2>
+                            </div>
+                            <div class="stat-icon text-success"><i class="fas fa-car"></i></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number danger">{{ imagens_desconhecidas|length }}</div>
-                    <div class="stat-label">Placas Não Cadastradas</div>
+                <div class="col-md-3">
+                    <div class="card h-100 p-3 border-start border-4 border-danger">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1">Placas Desconhecidas</h6>
+                                <h2 class="fw-bold mb-0 text-danger">{{ imagens_desconhecidas|length }}</h2>
+                            </div>
+                            <div class="stat-icon text-danger"><i class="fas fa-question-circle"></i></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number warning">{{ alertas|length }}</div>
-                    <div class="stat-label">Alertas Ativos</div>
+                <div class="col-md-3">
+                    <div class="card h-100 p-3 border-start border-4 border-warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1">Alertas Ativos</h6>
+                                <h2 class="fw-bold mb-0 text-warning">{{ alertas|length }}</h2>
+                            </div>
+                            <div class="stat-icon text-warning"><i class="fas fa-bell"></i></div>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-card">
-                    <div class="stat-number">{{ acessos|length }}</div>
-                    <div class="stat-label">Acessos Recentes</div>
+                <div class="col-md-3">
+                    <div class="card h-100 p-3 border-start border-4 border-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="text-muted text-uppercase mb-1">Acessos Recentes</h6>
+                                <h2 class="fw-bold mb-0 text-info">{{ acessos|length }}</h2>
+                            </div>
+                            <div class="stat-icon text-info"><i class="fas fa-history"></i></div>
+                        </div>
+                    </div>
                 </div>
             </div>
             
-            <div class="section">
-                <h2>📸 Placas Não Cadastradas - Aguardando Cadastro</h2>
-                <div class="images-grid">
-                    {% for img_path in imagens_desconhecidas %}
-                        {% set filename = img_path.split('\\\\')[-1] %}
-                        {% set placa_nome = filename.split('_')[0] %}
-                        <div class="image-card" onclick="window.location.href='{{ url_for('cadastro_veiculo', placa=placa_nome) }}'">
-                            <img src="{{ url_for('static_image', filename=filename) }}" alt="{{ placa_nome }}">
-                            <div class="image-info">
-                                <div class="image-placa">{{ placa_nome }}</div>
-                                <div class="image-timestamp">{{ filename.split('_')[1].split('.')[0] if '_' in filename else 'N/A' }}</div>
-                                <button class="btn-cadastrar" onclick="event.stopPropagation(); window.location.href='{{ url_for('cadastro_veiculo', placa=placa_nome) }}'">
-                                    Cadastrar Veículo
-                                </button>
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-transparent border-secondary fw-bold text-danger">
+                            <i class="fas fa-camera me-2"></i>DETECTADOS RECENTES (Desconhecidos)
+                        </div>
+                        <div class="card-body overflow-auto" style="max-height: 800px;">
+                            <div class="row g-3">
+                                {% for img_path in imagens_desconhecidas %}
+                                    {% set filename = img_path.split('\\\\')[-1] %}
+                                    {% set placa_nome = filename.split('_')[0] %}
+                                    <div class="col-6">
+                                        <div class="card bg-dark border-secondary position-relative">
+                                            <img src="{{ url_for('static_image', filename=filename) }}" class="img-placa rounded-top" alt="{{ placa_nome }}">
+                                            <div class="p-2 text-center">
+                                                <div class="badge bg-light text-dark mb-2 font-monospace">{{ placa_nome }}</div>
+                                                <a href="{{ url_for('cadastro_veiculo', placa=placa_nome) }}" class="btn btn-sm btn-outline-success w-100">
+                                                    <i class="fas fa-check"></i> Cadastrar
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <div class="text-center text-muted py-5">
+                                        <i class="fas fa-check-circle fa-3x mb-3"></i>
+                                        <p>Tudo limpo por aqui, senhor.</p>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
-                    {% endfor %}
-                    {% if imagens_desconhecidas|length == 0 %}
-                        <div class="empty-state">
-                            <p>✅ Nenhuma placa desconhecida no momento</p>
+                    </div>
+                </div>
+
+                <div class="col-lg-8">
+                    <div class="card mb-4">
+                        <div class="card-header bg-transparent border-secondary fw-bold text-info">
+                            <i class="fas fa-list me-2"></i>LOG DE ACESSOS (Últimos 20)
                         </div>
-                    {% endif %}
+                        <div class="table-responsive">
+                            <table class="table table-custom table-hover align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Placa</th>
+                                        <th>Proprietário</th>
+                                        <th>Tipo</th>
+                                        <th>Status</th>
+                                        <th>Horário</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for acesso in acessos %}
+                                    <tr>
+                                        <td><span class="badge-placa px-2 py-1">{{ acesso.placa }}</span></td>
+                                        <td>{{ acesso.usuario_nome or 'Desconhecido' }}</td>
+                                        <td><span class="badge bg-secondary">{{ acesso.usuario_tipo or 'N/A' }}</span></td>
+                                        <td>
+                                            {% if acesso.usuario_nome %}
+                                                <span class="badge bg-success"><i class="fas fa-check-circle"></i> OK</span>
+                                            {% else %}
+                                                <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Alert</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="font-monospace text-muted small">{{ acesso.data_acesso.strftime('%H:%M:%S - %d/%m') }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header bg-transparent border-secondary fw-bold text-success">
+                            <i class="fas fa-database me-2"></i>BASE DE VEÍCULOS
+                        </div>
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-custom table-sm table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Placa</th>
+                                        <th>Modelo</th>
+                                        <th>Proprietário</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for veiculo in veiculos %}
+                                    <tr>
+                                        <td><span class="badge-placa px-2">{{ veiculo.placa }}</span></td>
+                                        <td>{{ veiculo.modelo or '-' }}</td>
+                                        <td>{{ veiculo.usuario_nome }}</td>
+                                        <td>
+                                            <a href="{{ url_for('detalhes_veiculo', placa=veiculo.placa) }}" class="btn btn-sm btn-outline-light">
+                                                <i class="fas fa-search"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
-            
-            <div class="section">
-                <h2>🚘 Veículos Cadastrados</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Placa</th>
-                            <th>Proprietário</th>
-                            <th>Tipo</th>
-                            <th>Modelo</th>
-                            <th>Status</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for veiculo in veiculos %}
-                        <tr>
-                            <td><span class="badge badge-placa">{{ veiculo.placa }}</span></td>
-                            <td>{{ veiculo.usuario_nome or 'Não vinculado' }}</td>
-                            <td>
-                                {% if veiculo.usuario_tipo == 'OFICIAL' %}
-                                    <span class="badge badge-oficial">OFICIAL</span>
-                                {% else %}
-                                    <span class="badge badge-particular">PARTICULAR</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ veiculo.modelo or '-' }}</td>
-                            <td>
-                                {% if veiculo.marcado %}
-                                    <span class="badge badge-marcado">MARCADO</span>
-                                {% elif veiculo.usuario_autorizado %}
-                                    <span class="badge badge-autorizado">AUTORIZADO</span>
-                                {% else %}
-                                    <span class="badge badge-nao-autorizado">NÃO AUTORIZADO</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <a href="{{ url_for('detalhes_veiculo', placa=veiculo.placa) }}" style="color: #007bff;">Ver detalhes</a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        {% if veiculos|length == 0 %}
-                        <tr>
-                            <td colspan="6" class="empty-state">Nenhum veículo cadastrado ainda.</td>
-                        </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <div class="section">
-                <h2>📊 Acessos Recentes</h2>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Placa</th>
-                            <th>Proprietário</th>
-                            <th>Tipo</th>
-                            <th>Data/Hora</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for acesso in acessos %}
-                        <tr>
-                            <td><span class="badge badge-placa">{{ acesso.placa }}</span></td>
-                            <td>{{ acesso.usuario_nome or 'Desconhecido' }}</td>
-                            <td>
-                                {% if acesso.usuario_tipo == 'OFICIAL' %}
-                                    <span class="badge badge-oficial">OFICIAL</span>
-                                {% elif acesso.usuario_tipo == 'PARTICULAR' %}
-                                    <span class="badge badge-particular">PARTICULAR</span>
-                                {% else %}
-                                    <span class="badge badge-nao-autorizado">NÃO CADASTRADO</span>
-                                {% endif %}
-                            </td>
-                            <td>{{ acesso.data_acesso.strftime('%d/%m/%Y %H:%M:%S') }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
         </div>
+        
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
     </html>
     """
@@ -1232,249 +1094,159 @@ def index():
 
 @app.route('/cadastro_veiculo')
 def cadastro_veiculo():
-    """Página de cadastro de veículo"""
+    """Página de cadastro de veículo - Reformulada"""
     placa = request.args.get('placa', '')
     usuarios = conn_db.listar_usuarios(200)
     
     html_page = """
     <!doctype html>
-    <html lang="pt-br">
+    <html lang="pt-br" data-bs-theme="dark">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Cadastrar Veículo - IFSULDEMINAS</title>
+        <title>Cadastro | Sentinel</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
         <style>
-            body { 
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
-                background-color: #f4f7f6; 
-                color: #333; 
-                margin: 0; 
-                padding: 0; 
-            }
-            .navbar {
-                background-color: #1a1a1a;
-                padding: 15px 20px;
-            }
-            .navbar h1 {
-                color: #fff;
-                font-size: 1.5em;
-                display: inline-block;
-                margin: 0;
-            }
-            .navbar a {
-                color: #fff;
-                text-decoration: none;
-                padding: 10px 15px;
-                margin-left: 20px;
-                border-radius: 5px;
-                display: inline-block;
-            }
-            .navbar a:hover { background-color: #333; }
-            
-            .container { 
-                max-width: 800px; 
-                margin: 40px auto; 
-                padding: 30px; 
-                background-color: #fff; 
-                border-radius: 8px; 
-                box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-            }
-            h2 { color: #1a1a1a; margin-bottom: 20px; }
-            
-            form { margin-top: 20px; }
-            .form-group {
-                margin-bottom: 20px;
-            }
-            label { 
-                display: block; 
-                margin-bottom: 8px; 
-                font-weight: 600;
-                color: #555;
-            }
-            input[type="text"], select, textarea {
-                width: 100%; 
-                padding: 12px; 
-                box-sizing: border-box; 
-                border: 1px solid #ddd; 
-                border-radius: 5px;
-                font-size: 1em;
-            }
-            input[type="text"]:focus, select:focus, textarea:focus {
-                outline: none;
-                border-color: #007bff;
-            }
-            .checkbox-group {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-            input[type="checkbox"] {
-                width: 20px;
-                height: 20px;
-            }
-            button { 
-                padding: 12px 30px; 
-                background-color: #28a745; 
-                color: white; 
-                border: none; 
-                border-radius: 5px; 
-                cursor: pointer; 
-                font-size: 1em;
-                font-weight: bold;
-            }
-            button:hover { background-color: #218838; }
-            .btn-secondary {
-                background-color: #6c757d;
-                margin-left: 10px;
-            }
-            .btn-secondary:hover { background-color: #5a6268; }
-            
-            .toggle-section {
-                background-color: #f8f9fa;
-                padding: 20px;
-                border-radius: 5px;
-                margin-top: 20px;
-            }
-            .toggle-btn {
-                background-color: #007bff;
-                padding: 10px 20px;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                margin-bottom: 15px;
-            }
-            .toggle-btn:hover { background-color: #0056b3; }
-            .hidden { display: none; }
+            body { background-color: #0f172a; color: #e2e8f0; }
+            .card { background-color: #1e293b; border-color: #334155; }
+            .form-control, .form-select { background-color: #0f172a; border-color: #475569; color: white; }
+            .form-control:focus, .form-select:focus { background-color: #0f172a; border-color: #3b82f6; color: white; box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25); }
         </style>
         <script>
             function toggleNovoUsuario() {
                 var section = document.getElementById('novo-usuario-section');
                 var select = document.getElementById('usuario_existente');
-                if (section.classList.contains('hidden')) {
-                    section.classList.remove('hidden');
+                var btn = document.getElementById('btn-toggle-user');
+                
+                if (section.classList.contains('d-none')) {
+                    section.classList.remove('d-none');
                     select.disabled = true;
                     select.required = false;
+                    btn.innerHTML = '<i class="fas fa-user-check me-2"></i>Selecionar Usuário Existente';
+                    btn.classList.replace('btn-outline-primary', 'btn-outline-warning');
                 } else {
-                    section.classList.add('hidden');
+                    section.classList.add('d-none');
                     select.disabled = false;
                     select.required = true;
+                    btn.innerHTML = '<i class="fas fa-user-plus me-2"></i>Cadastrar Novo Usuário';
+                    btn.classList.replace('btn-outline-warning', 'btn-outline-primary');
                 }
             }
         </script>
     </head>
-    <body>
-        <div class="navbar">
-            <h1>🚗 Cadastrar Novo Veículo</h1>
-            <a href="{{ url_for('index') }}">← Voltar ao Dashboard</a>
-        </div>
-        
-        <div class="container">
-            <h2>Cadastro de Veículo</h2>
-            
+    <body class="py-4">
+        <div class="container" style="max-width: 900px;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold text-light"><i class="fas fa-car-side me-2"></i>Cadastro de Veículo</h2>
+                <a href="{{ url_for('index') }}" class="btn btn-outline-secondary"><i class="fas fa-arrow-left me-2"></i>Voltar</a>
+            </div>
+
             <form action="{{ url_for('salvar_veiculo') }}" method="post">
-                <div class="form-group">
-                    <label for="placa">Placa do Veículo *</label>
-                    <input type="text" id="placa" name="placa" value="{{ placa }}" 
-                           placeholder="ABC1234 ou ABC1D23" required 
-                           pattern="[A-Z]{3}\d{4}|[A-Z]{3}\d[A-Z]\d{2}" 
-                           title="Digite uma placa válida (ABC1234 ou ABC1D23)">
-                </div>
-                
-                <div class="form-group">
-                    <label for="modelo">Modelo do Veículo</label>
-                    <input type="text" id="modelo" name="modelo" 
-                           placeholder="Ex: Honda Civic, Toyota Corolla">
-                </div>
-                
-                <div class="form-group">
-                    <label for="cor">Cor</label>
-                    <input type="text" id="cor" name="cor" placeholder="Ex: Preto, Branco, Prata">
-                </div>
-                
-                <div class="form-group">
-                    <label for="tipo_veiculo">Tipo de Veículo *</label>
-                    <select id="tipo_veiculo" name="tipo_veiculo" required>
-                        <option value="CARRO">Carro</option>
-                        <option value="MOTO">Moto</option>
-                        <option value="CAMINHAO">Caminhão</option>
-                        <option value="OUTRO">Outro</option>
-                    </select>
-                </div>
-                
-                <hr style="margin: 30px 0;">
-                
-                <h3>Proprietário do Veículo</h3>
-                
-                <div class="form-group">
-                    <label for="usuario_existente">Selecionar Usuário Existente *</label>
-                    <select id="usuario_existente" name="usuario_existente" required>
-                        <option value="">-- Selecione um usuário --</option>
-                        {% for usuario in usuarios %}
-                            <option value="{{ usuario.id }}">
-                                {{ usuario.nome }} - {{ usuario.tipo }} 
-                                {% if usuario.cpf %} (CPF: {{ usuario.cpf }}){% endif %}
-                            </option>
-                        {% endfor %}
-                    </select>
-                </div>
-                
-                <button type="button" class="toggle-btn" onclick="toggleNovoUsuario()">
-                    ➕ Ou Cadastrar Novo Usuário
-                </button>
-                
-                <div id="novo-usuario-section" class="toggle-section hidden">
-                    <h4>Dados do Novo Usuário</h4>
-                    
-                    <div class="form-group">
-                        <label for="usuario_nome">Nome Completo</label>
-                        <input type="text" id="usuario_nome" name="usuario_nome" 
-                               placeholder="Nome completo do proprietário">
+                <div class="row g-4">
+                    <div class="col-md-12">
+                        <div class="card h-100">
+                            <div class="card-header fw-bold text-uppercase text-primary">Dados do Artefato (Veículo)</div>
+                            <div class="card-body">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">Placa *</label>
+                                        <input type="text" name="placa" value="{{ placa }}" class="form-control form-control-lg font-monospace fw-bold text-uppercase" placeholder="ABC1234" required>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Tipo *</label>
+                                        <select name="tipo_veiculo" class="form-select form-select-lg" required>
+                                            <option value="CARRO">Carro</option>
+                                            <option value="MOTO">Moto</option>
+                                            <option value="CAMINHAO">Caminhão</option>
+                                            <option value="OUTRO">Outro</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Modelo</label>
+                                        <input type="text" name="modelo" class="form-control" placeholder="Ex: Honda Civic">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Cor</label>
+                                        <input type="text" name="cor" class="form-control" placeholder="Ex: Prata">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="card h-100">
+                            <div class="card-header fw-bold text-uppercase text-info d-flex justify-content-between align-items-center">
+                                <span>Proprietário</span>
+                                <button type="button" id="btn-toggle-user" class="btn btn-sm btn-outline-primary" onclick="toggleNovoUsuario()">
+                                    <i class="fas fa-user-plus me-2"></i>Novo Usuário
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Usuário Cadastrado</label>
+                                    <select id="usuario_existente" name="usuario_existente" class="form-select" required>
+                                        <option value="">-- Selecione --</option>
+                                        {% for usuario in usuarios %}
+                                            <option value="{{ usuario.id }}">{{ usuario.nome }} ({{ usuario.tipo }})</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div id="novo-usuario-section" class="d-none border rounded p-3 bg-dark bg-opacity-25 mt-3">
+                                    <h6 class="text-warning mb-3">Novo Registro de Humano</h6>
+                                    <div class="row g-3">
+                                        <div class="col-md-8">
+                                            <label class="form-label">Nome Completo</label>
+                                            <input type="text" name="usuario_nome" class="form-control">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">Tipo</label>
+                                            <select name="usuario_tipo" class="form-select">
+                                                <option value="PARTICULAR">Particular</option>
+                                                <option value="OFICIAL">Oficial</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">CPF</label>
+                                            <input type="text" name="usuario_cpf" class="form-control">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">Telefone</label>
+                                            <input type="text" name="usuario_telefone" class="form-control">
+                                        </div>
+                                        <div class="col-12">
+                                            <div class="form-check form-switch">
+                                                <input class="form-check-input" type="checkbox" name="usuario_autorizado" id="authSwitch" checked>
+                                                <label class="form-check-label" for="authSwitch">Autorizado a acessar</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="usuario_cpf">CPF</label>
-                        <input type="text" id="usuario_cpf" name="usuario_cpf" 
-                               placeholder="000.000.000-00" maxlength="14">
+                    <div class="col-md-12">
+                        <div class="card border-warning border-opacity-25">
+                            <div class="card-body">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input bg-warning border-warning" type="checkbox" name="marcado" id="marcaSwitch">
+                                    <label class="form-check-label text-warning fw-bold" for="marcaSwitch">MARCAR VEÍCULO (Lista de Vigilância)</label>
+                                </div>
+                                <div class="mt-3">
+                                    <input type="text" name="motivo_marcacao" class="form-control border-warning text-warning" placeholder="Motivo da marcação (opcional)">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="usuario_telefone">Telefone</label>
-                        <input type="text" id="usuario_telefone" name="usuario_telefone" 
-                               placeholder="(00) 00000-0000">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="usuario_tipo">Tipo de Usuário</label>
-                        <select id="usuario_tipo" name="usuario_tipo">
-                            <option value="PARTICULAR">Particular</option>
-                            <option value="OFICIAL">Oficial (Servidor/Professor)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group checkbox-group">
-                        <input type="checkbox" id="usuario_autorizado" name="usuario_autorizado" checked>
-                        <label for="usuario_autorizado">Autorizado a acessar a instituição</label>
+
+                    <div class="col-12 text-end mt-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-secondary btn-lg me-2">Cancelar</a>
+                        <button type="submit" class="btn btn-success btn-lg px-5"><i class="fas fa-save me-2"></i>Salvar Registro</button>
                     </div>
                 </div>
-                
-                <hr style="margin: 30px 0;">
-                
-                <div class="form-group checkbox-group">
-                    <input type="checkbox" id="marcado" name="marcado">
-                    <label for="marcado">Marcar veículo para controle especial</label>
-                </div>
-                
-                <div class="form-group">
-                    <label for="motivo_marcacao">Motivo da Marcação (se aplicável)</label>
-                    <textarea id="motivo_marcacao" name="motivo_marcacao" rows="3" 
-                              placeholder="Descreva o motivo da marcação do veículo"></textarea>
-                </div>
-                
-                <button type="submit">✅ Cadastrar Veículo</button>
-                <a href="{{ url_for('index') }}" class="btn-secondary" style="text-decoration: none; display: inline-block; padding: 12px 30px; border-radius: 5px;">
-                    Cancelar
-                </a>
             </form>
         </div>
     </body>
@@ -1770,60 +1542,84 @@ def listar_usuarios():
 
 @app.route('/live')
 def live_view():
-    """Página de visualização ao vivo"""
+    """Página de visualização ao vivo - Estilo Câmera de Segurança"""
     html_page = """
     <!doctype html>
     <html lang="pt-br">
     <head>
         <meta charset="utf-8">
-        <title>Reconhecimento Ao Vivo</title>
+        <title>LIVE FEED | Sentinel System</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <style>
             body { 
-                font-family: Arial, sans-serif; 
-                background-color: #282c34; 
-                color: white; 
-                text-align: center;
-                margin: 0;
-                padding: 0;
+                background-color: #000; 
+                height: 100vh; 
+                display: flex; 
+                flex-direction: column; 
+                overflow: hidden; 
             }
-            h1 { 
-                margin: 20px 0; 
-                padding: 10px;
-                background-color: rgba(0,0,0,0.3);
-            }
-            img { 
-                margin: 10px auto;
-                border: 3px solid #61dafb; 
-                border-radius: 8px; 
-                max-width: 95%;
-                height: auto;
-            }
-            .controls {
-                margin: 20px;
-            }
-            .btn {
+            .header {
                 padding: 10px 20px;
-                background-color: #007bff;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 1em;
-                margin: 5px;
-                text-decoration: none;
-                display: inline-block;
+                background-color: #111;
+                border-bottom: 1px solid #333;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                color: #fff;
             }
-            .btn:hover {
-                background-color: #0056b3;
+            .video-container {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+                background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
+            }
+            img {
+                max-height: 90vh;
+                max-width: 95%;
+                border: 2px solid #333;
+                box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+            }
+            .rec-badge {
+                animation: blink 2s infinite;
+                color: red;
+                font-weight: bold;
+                letter-spacing: 2px;
+            }
+            @keyframes blink {
+                0% { opacity: 1; }
+                50% { opacity: 0.3; }
+                100% { opacity: 1; }
+            }
+            .overlay-info {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                color: rgba(0, 255, 0, 0.7);
+                font-family: monospace;
+                font-size: 1.2rem;
+                pointer-events: none;
             }
         </style>
     </head>
     <body>
-        <h1>🚗 Reconhecimento de Placas - Ao Vivo</h1>
-        <div class="controls">
-            <a href="{{ url_for('index') }}" class="btn">← Voltar ao Dashboard</a>
+        <div class="header">
+            <div class="d-flex align-items-center">
+                <span class="rec-badge me-3">● REC</span>
+                <span class="font-monospace">CAM_01_PORTARIA_PRINCIPAL</span>
+            </div>
+            <a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-light">FECHAR MONITORAMENTO</a>
         </div>
-        <img src="{{ url_for('video_feed') }}" alt="Stream de Vídeo">
+        
+        <div class="video-container">
+            <div class="overlay-info">
+                SYSTEM: ONLINE<br>
+                OCR: ACTIVE<br>
+                MODE: AUTOMATIC
+            </div>
+            <img src="{{ url_for('video_feed') }}" alt="Stream de Vídeo">
+        </div>
     </body>
     </html>
     """
