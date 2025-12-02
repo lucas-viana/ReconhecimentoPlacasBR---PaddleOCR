@@ -32,12 +32,6 @@ placas_conhecidas/
 *.sqlite3
 *.db
 
-# Ignore video files
-*.mp4
-*.avi
-*.mov
-*.mkv
-
 # Ignore images
 *.jpg
 *.jpeg
