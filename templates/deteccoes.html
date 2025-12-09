@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Detecções - Sistema de Detecção de Placas{% endblock %}
+
+{% block content %}
+<h2>Detecções de Placas</h2>
+
+<div class="search-box">
+    <input type="text" id="searchInput" placeholder="Buscar placa..." onkeyup="filterTable()">
+</div>
+
+<table id="deteccoes-table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Placa</th>
+            <th>Tipo</th>
+            <th>Confiança</th>
+            <th>Data/Hora</th>
+            <th>Frame</th>
+            <th>Origem</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for deteccao in deteccoes %}
+        <tr>
+            <td>{{ deteccao.id }}</td>
+            <td><strong>{{ deteccao.placa }}</strong></td>
+            <td>{{ deteccao.tipo_placa }}</td>
+            <td>
+                <div style="background: #667eea; color: white; padding: 5px 10px; border-radius: 5px; text-align: center; width: 80px;">
+                    {{ "%.2f"|format(deteccao.confianca * 100) }}%
+                </div>
+            </td>
+            <td>{{ deteccao.data_deteccao.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+            <td>{{ deteccao.frame_numero }}</td>
+            <td>{{ deteccao.origem }}</td>
+            <td>
+                <a href="/editar/deteccao/{{ deteccao.id }}" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.9em;">Editar</a>
+                <button class="btn btn-danger" style="padding: 8px 12px; font-size: 0.9em;" onclick="confirmDelete({{ deteccao.id }}, 'deteccao')">Deletar</button>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" style="text-align: center; padding: 20px;">Nenhuma detecção encontrada</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if paginas %}
+<div style="margin-top: 20px; text-align: center;">
+    {% if pagina_anterior %}
+        <a href="?page={{ pagina_anterior }}" class="btn btn-secondary">← Anterior</a>
+    {% endif %}
+
+    {% for p in paginas %}
+        {% if p == pagina_atual %}
+            <button class="btn btn-primary" disabled>{{ p }}</button>
+        {% else %}
+            <a href="?page={{ p }}" class="btn btn-secondary">{{ p }}</a>
+        {% endif %}
+    {% endfor %}
+
+    {% if proxima_pagina %}
+        <a href="?page={{ proxima_pagina }}" class="btn btn-secondary">Próxima →</a>
+    {% endif %}
+</div>
+{% endif %}
+
+<script>
+function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("deteccoes-table");
+    const tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        const td = tr[i].getElementsByTagName("td")[1];
+        if (td) {
+            const txtValue = td.textContent || td.innerText;
+            tr[i].style.display = txtValue.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+        }
+    }
+}
+</script>
+{% endblock %}

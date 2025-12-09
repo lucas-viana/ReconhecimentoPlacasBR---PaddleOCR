@@ -215,6 +215,159 @@ class GerenciadorBanco:
         
         return [row[0] for row in cursor.fetchall()]
     
+    def atualizar_deteccao(self, id_deteccao: int, placa: str = None, 
+                          tipo_placa: str = None, confianca: float = None) -> bool:
+        """Atualiza uma detecção existente"""
+        try:
+            cursor = self.conn.cursor()
+            campos = []
+            valores = []
+            
+            if placa is not None:
+                campos.append("placa = %s")
+                valores.append(placa)
+            if tipo_placa is not None:
+                campos.append("tipo_placa = %s")
+                valores.append(tipo_placa)
+            if confianca is not None:
+                campos.append("confianca = %s")
+                valores.append(confianca)
+            
+            if not campos:
+                return False
+            
+            valores.append(id_deteccao)
+            
+            sql = f"UPDATE deteccoes_placas SET {', '.join(campos)} WHERE id = %s"
+            cursor.execute(sql, valores)
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"❌ Erro ao atualizar detecção: {e}")
+            self.conn.rollback()
+            return False
+    
+    def deletar_deteccao(self, id_deteccao: int) -> bool:
+        """Deleta uma detecção do banco"""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("DELETE FROM deteccoes_placas WHERE id = %s", (id_deteccao,))
+            self.conn.commit()
+            return True
+        except Exception as e:
+            print(f"❌ Erro ao deletar detecção: {e}")
+            self.conn.rollback()
+            return False
+    
+    def deletar_deteccoes_por_placa(self, placa: str) -> int:
+        """Deleta todas as detecções de uma placa e retorna a quantidade deletada"""
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("DELETE FROM deteccoes_placas WHERE placa = %s", (placa,))
+            self.conn.commit()
+            return cursor.rowcount
+        except Exception as e:
+            print(f"❌ Erro ao deletar detecções: {e}")
+            self.conn.rollback()
+            return 0
+    
+    def deletar_deteccoes_por_data(self, data: str) -> int:
+        """Deleta todas as detecções de uma data específica (formato: YYYY-MM-DD)"""
+        try:
+            cursor = self.conn.cursor()
+            
+            if self.usar_postgres:
+                cursor.execute(
+                    "DELETE FROM deteccoes_placas WHERE DATE(data_deteccao) = %s",
+                    (data,)
+                )
+            else:
+                cursor.execute(
+                    "DELETE FROM deteccoes_placas WHERE DATE(data_deteccao) = %s",
+                    (data,)
+                )
+            
+            self.conn.commit()
+            return cursor.rowcount
+        except Exception as e:
+            print(f"❌ Erro ao deletar detecções por data: {e}")
+            self.conn.rollback()
+            return 0
+    
+    def buscar_deteccao_por_id(self, id_deteccao: int) -> Optional[Dict]:
+        """Busca uma detecção específica pelo ID"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute("""
+            SELECT id, placa, tipo_placa, confianca, data_deteccao, frame_numero, origem
+            FROM deteccoes_placas
+            WHERE id = %s
+        """, (id_deteccao,))
+        
+        resultado = cursor.fetchone()
+        
+        if resultado:
+            return {
+                'id': resultado[0],
+                'placa': resultado[1],
+                'tipo_placa': resultado[2],
+                'confianca': float(resultado[3]),
+                'data_deteccao': resultado[4],
+                'frame_numero': resultado[5],
+                'origem': resultado[6]
+            }
+        return None
+    
+    def listar_todas_deteccoes(self, limite: int = 100) -> List[Dict]:
+        """Lista todas as detecções com limite"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute("""
+            SELECT id, placa, tipo_placa, confianca, data_deteccao, frame_numero, origem
+            FROM deteccoes_placas
+            ORDER BY data_deteccao DESC
+            LIMIT %s
+        """, (limite,))
+        
+        deteccoes = []
+        for resultado in cursor.fetchall():
+            deteccoes.append({
+                'id': resultado[0],
+                'placa': resultado[1],
+                'tipo_placa': resultado[2],
+                'confianca': float(resultado[3]),
+                'data_deteccao': resultado[4],
+                'frame_numero': resultado[5],
+                'origem': resultado[6]
+            })
+        
+        return deteccoes
+    
+    def listar_deteccoes_por_tipo(self, tipo_placa: str) -> List[Dict]:
+        """Lista todas as detecções de um tipo específico"""
+        cursor = self.conn.cursor()
+        
+        cursor.execute("""
+            SELECT id, placa, tipo_placa, confianca, data_deteccao, frame_numero, origem
+            FROM deteccoes_placas
+            WHERE tipo_placa = %s
+            ORDER BY data_deteccao DESC
+        """, (tipo_placa,))
+        
+        deteccoes = []
+        for resultado in cursor.fetchall():
+            deteccoes.append({
+                'id': resultado[0],
+                'placa': resultado[1],
+                'tipo_placa': resultado[2],
+                'confianca': float(resultado[3]),
+                'data_deteccao': resultado[4],
+                'frame_numero': resultado[5],
+                'origem': resultado[6]
+            })
+        
+        return deteccoes
+    
     def fechar(self):
         """Fecha conexão com o banco"""
         if self.conn:

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Sistema de Detecção de Placas{% endblock %}
+
+{% block content %}
+<div class="stats">
+    <div class="stat-card">
+        <h3>{{ total_deteccoes }}</h3>
+        <p>Total de Detecções</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_veiculos }}</h3>
+        <p>Veículos Cadastrados</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ total_usuarios }}</h3>
+        <p>Usuários Ativas</p>
+    </div>
+    <div class="stat-card">
+        <h3>{{ deteccoes_hoje }}</h3>
+        <p>Detecções Hoje</p>
+    </div>
+</div>
+
+<h2>Bem-vindo ao Sistema de Detecção de Placas</h2>
+<p>Este sistema utiliza inteligência artificial para detectar e reconhecer placas veiculares em tempo real, salvando as informações em um banco de dados seguro.</p>
+
+<h3 style="margin-top: 30px;">Funcionalidades Principais:</h3>
+<ul style="margin-left: 20px; line-height: 2;">
+    <li>✓ Detecção em tempo real via webcam ou arquivo de vídeo</li>
+    <li>✓ Reconhecimento de placas MERCOSUL e antigas</li>
+    <li>✓ Suporte a carros e motos</li>
+    <li>✓ Armazenamento em PostgreSQL ou MySQL</li>
+    <li>✓ Interface web responsiva</li>
+    <li>✓ Gerenciamento de veículos e usuários</li>
+    <li>✓ Relatórios detalhados</li>
+</ul>
+
+<div style="margin-top: 30px; text-align: center;">
+    <a href="/deteccoes" class="btn btn-primary" style="padding: 15px 30px; font-size: 1.1em;">Ver Detecções</a>
+    <a href="/veiculos" class="btn btn-secondary" style="padding: 15px 30px; font-size: 1.1em;">Gerenciar Veículos</a>
+    <a href="/usuarios" class="btn btn-secondary" style="padding: 15px 30px; font-size: 1.1em;">Gerenciar Usuários</a>
+</div>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Usuário{% endblock %}
+
+{% block content %}
+<h2>{% if usuario %}Editar{% else %}Novo{% endif %} Usuário</h2>
+
+<form method="POST">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="form-group">
+            <label for="nome">Nome Completo:</label>
+            <input type="text" id="nome" name="nome" value="{{ usuario.nome if usuario else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{ usuario.email if usuario else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" value="{{ usuario.telefone if usuario else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="cargo">Cargo:</label>
+            <select id="cargo" name="cargo" required>
+                <option value="ADMINISTRADOR" {% if usuario and usuario.cargo == 'ADMINISTRADOR' %}selected{% endif %}>Administrador</option>
+                <option value="OPERADOR" {% if usuario and usuario.cargo == 'OPERADOR' %}selected{% endif %}>Operador</option>
+                <option value="ANALISTA" {% if usuario and usuario.cargo == 'ANALISTA' %}selected{% endif %}>Analista</option>
+                <option value="VIEWER" {% if usuario and usuario.cargo == 'VIEWER' %}selected{% endif %}>Visualizador</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="departamento">Departamento:</label>
+            <input type="text" id="departamento" name="departamento" value="{{ usuario.departamento if usuario else '' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="ativo">Status:</label>
+            <select id="ativo" name="ativo" required>
+                <option value="1" {% if usuario and usuario.ativo %}selected{% endif %}>Ativo</option>
+                <option value="0" {% if usuario and not usuario.ativo %}selected{% endif %}>Inativo</option>
+            </select>
+        </div>
+    </div>
+
+    {% if not usuario %}
+    <div class="form-group">
+        <label for="senha">Senha:</label>
+        <input type="password" id="senha" name="senha" required>
+    </div>
+
+    <div class="form-group">
+        <label for="confirmar_senha">Confirmar Senha:</label>
+        <input type="password" id="confirmar_senha" name="confirmar_senha" required>
+    </div>
+    {% else %}
+    <div class="form-group">
+        <label for="nova_senha">Nova Senha (deixar em branco para manter a atual):</label>
+        <input type="password" id="nova_senha" name="nova_senha">
+    </div>
+    {% endif %}
+
+    <div class="form-group">
+        <label for="observacoes">Observações:</label>
+        <textarea id="observacoes" name="observacoes">{{ usuario.observacoes if usuario else '' }}</textarea>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <button type="submit" class="btn btn-success">{% if usuario %}Salvar Alterações{% else %}Cadastrar Usuário{% endif %}</button>
+        <a href="/usuarios" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

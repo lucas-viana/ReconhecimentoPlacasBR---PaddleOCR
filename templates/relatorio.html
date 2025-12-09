@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Relatório - Sistema de Detecção de Placas{% endblock %}
+
+{% block content %}
+<h2>Relatório de Detecções</h2>
+
+<div class="stats">
+    <div class="stat-card">
+        <h3>{{ total }}</h3>
+        <p>Total de Detecções</p>
+    </div>
+    {% for tipo, quantidade in por_tipo.items() %}
+    <div class="stat-card">
+        <h3>{{ quantidade }}</h3>
+        <p>{{ tipo }}</p>
+    </div>
+    {% endfor %}
+</div>
+
+<h3>Detecções por Origem</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Origem</th>
+            <th>Quantidade</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for origem, quantidade in por_origem.items() %}
+        <tr>
+            <td>{{ origem }}</td>
+            <td>{{ quantidade }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<h3>Detecções Recentes</h3>
+<table>
+    <thead>
+        <tr>
+            <th>Placa</th>
+            <th>Tipo</th>
+            <th>Confiança</th>
+            <th>Data/Hora</th>
+            <th>Origem</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for det in deteccoes[:50] %}
+        <tr>
+            <td><strong>{{ det.placa }}</strong></td>
+            <td>{{ det.tipo_placa }}</td>
+            <td>{{ "%.2f"|format(det.confianca * 100) }}%</td>
+            <td>{{ det.data_deteccao.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+            <td>{{ det.origem }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

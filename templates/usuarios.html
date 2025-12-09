@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Usuários{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Usuários Cadastrados</h2>
+    <a href="/novo/usuario" class="btn btn-success">+ Novo Usuário</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nome</th>
+            <th>Email</th>
+            <th>Telefone</th>
+            <th>Cargo</th>
+            <th>Status</th>
+            <th>Data Cadastro</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for usuario in usuarios %}
+        <tr>
+            <td>{{ usuario.id }}</td>
+            <td>{{ usuario.nome }}</td>
+            <td>{{ usuario.email }}</td>
+            <td>{{ usuario.telefone }}</td>
+            <td>{{ usuario.cargo }}</td>
+            <td>
+                {% if usuario.ativo %}
+                    <span style="background: #28a745; color: white; padding: 5px 10px; border-radius: 5px;">Ativo</span>
+                {% else %}
+                    <span style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 5px;">Inativo</span>
+                {% endif %}
+            </td>
+            <td>{{ usuario.data_cadastro.strftime('%d/%m/%Y') }}</td>
+            <td>
+                <a href="/editar/usuario/{{ usuario.id }}" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.9em;">Editar</a>
+                <button class="btn btn-danger" style="padding: 8px 12px; font-size: 0.9em;" onclick="confirmDelete({{ usuario.id }}, 'usuario')">Deletar</button>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="8" style="text-align: center; padding: 20px;">Nenhum usuário cadastrado</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

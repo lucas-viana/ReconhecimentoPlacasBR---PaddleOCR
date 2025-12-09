@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Veículo{% endblock %}
+
+{% block content %}
+<h2>{% if veiculo %}Editar{% else %}Novo{% endif %} Veículo</h2>
+
+<form method="POST">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div class="form-group">
+            <label for="placa">Placa:</label>
+            <input type="text" id="placa" name="placa" value="{{ veiculo.placa if veiculo else '' }}" required maxlength="10">
+        </div>
+
+        <div class="form-group">
+            <label for="proprietario">Proprietário:</label>
+            <input type="text" id="proprietario" name="proprietario" value="{{ veiculo.proprietario if veiculo else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="marca">Marca:</label>
+            <input type="text" id="marca" name="marca" value="{{ veiculo.marca if veiculo else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="modelo">Modelo:</label>
+            <input type="text" id="modelo" name="modelo" value="{{ veiculo.modelo if veiculo else '' }}" required>
+        </div>
+
+        <div class="form-group">
+            <label for="ano">Ano:</label>
+            <input type="number" id="ano" name="ano" value="{{ veiculo.ano if veiculo else '' }}" min="1900" max="2100">
+        </div>
+
+        <div class="form-group">
+            <label for="cor">Cor:</label>
+            <input type="color" id="cor" name="cor" value="{{ veiculo.cor if veiculo else '#000000' }}">
+        </div>
+
+        <div class="form-group">
+            <label for="tipo">Tipo:</label>
+            <select id="tipo" name="tipo" required>
+                <option value="CARRO" {% if veiculo and veiculo.tipo == 'CARRO' %}selected{% endif %}>Carro</option>
+                <option value="MOTO" {% if veiculo and veiculo.tipo == 'MOTO' %}selected{% endif %}>Moto</option>
+                <option value="CAMINHÃO" {% if veiculo and veiculo.tipo == 'CAMINHÃO' %}selected{% endif %}>Caminhão</option>
+                <option value="ÔNIBUS" {% if veiculo and veiculo.tipo == 'ÔNIBUS' %}selected{% endif %}>Ônibus</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="telefone">Telefone Proprietário:</label>
+            <input type="text" id="telefone" name="telefone" value="{{ veiculo.telefone if veiculo else '' }}">
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="observacoes">Observações:</label>
+        <textarea id="observacoes" name="observacoes">{{ veiculo.observacoes if veiculo else '' }}</textarea>
+    </div>
+
+    <div style="margin-top: 30px;">
+        <button type="submit" class="btn btn-success">{% if veiculo %}Salvar Alterações{% else %}Cadastrar Veículo{% endif %}</button>
+        <a href="/veiculos" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

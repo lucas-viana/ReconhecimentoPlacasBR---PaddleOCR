@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Veículos{% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <h2>Veículos Cadastrados</h2>
+    <a href="/novo/veiculo" class="btn btn-success">+ Novo Veículo</a>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Placa</th>
+            <th>Proprietário</th>
+            <th>Modelo</th>
+            <th>Marca</th>
+            <th>Cor</th>
+            <th>Tipo</th>
+            <th>Data Cadastro</th>
+            <th>Ações</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for veiculo in veiculos %}
+        <tr>
+            <td>{{ veiculo.id }}</td>
+            <td><strong>{{ veiculo.placa }}</strong></td>
+            <td>{{ veiculo.proprietario }}</td>
+            <td>{{ veiculo.modelo }}</td>
+            <td>{{ veiculo.marca }}</td>
+            <td>
+                <div style="width: 30px; height: 30px; background: {{ veiculo.cor }}; border-radius: 50%; border: 1px solid #ddd;"></div>
+            </td>
+            <td>{{ veiculo.tipo }}</td>
+            <td>{{ veiculo.data_cadastro.strftime('%d/%m/%Y') }}</td>
+            <td>
+                <a href="/editar/veiculo/{{ veiculo.id }}" class="btn btn-primary" style="padding: 8px 12px; font-size: 0.9em;">Editar</a>
+                <button class="btn btn-danger" style="padding: 8px 12px; font-size: 0.9em;" onclick="confirmDelete({{ veiculo.id }}, 'veiculo')">Deletar</button>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="9" style="text-align: center; padding: 20px;">Nenhum veículo cadastrado</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
